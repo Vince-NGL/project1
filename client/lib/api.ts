@@ -37,3 +37,10 @@ export function logoutUser() {
 export function getMe() {
   return request<{ user: { userId: string; email: string } }>('/me');
 }
+
+export function changePassword(currentPassword: string, newPassword: string, confirmPassword: string) {
+  return request<{ message: string }>('/change-password', {
+    method: 'POST',
+    body: JSON.stringify({ currentPassword, newPassword, confirmPassword }),
+  });
+}

@@ -1,27 +1,32 @@
-import fs from 'fs';
+import Database from 'better-sqlite3';
 import path from 'path';
 import { User } from '../types';
 
-const DATA_FILE = path.join(__dirname, '../../data/users.json');
+const db = new Database(path.join(__dirname, '../../data/users.db'));
 
-function readUsers(): User[] {
-  if (!fs.existsSync(DATA_FILE)) return [];
-  const raw = fs.readFileSync(DATA_FILE, 'utf-8');
-  return JSON.parse(raw) as User[];
-}
-
-function writeUsers(users: User[]): void {
-  const tmp = DATA_FILE + '.tmp';
-  fs.writeFileSync(tmp, JSON.stringify(users, null, 2), 'utf-8');
-  fs.renameSync(tmp, DATA_FILE);
-}
+db.exec(`
+  CREATE TABLE IF NOT EXISTS users (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    passwordHash TEXT NOT NULL,
+    createdAt TEXT NOT NULL
+  )
+`);
 
 export function findByEmail(email: string): User | undefined {
-  return readUsers().find((u) => u.email === email);
+  return db.prepare('SELECT * FROM users WHERE email = ?').get(email) as User | undefined;
+}
+
+export function findById(id: string): User | undefined {
+  return db.prepare('SELECT * FROM users WHERE id = ?').get(id) as User | undefined;
 }
 
 export function createUser(user: User): void {
-  const users = readUsers();
-  users.push(user);
-  writeUsers(users);
+  db.prepare(
+    'INSERT INTO users (id, email, passwordHash, createdAt) VALUES (?, ?, ?, ?)'
+  ).run(user.id, user.email, user.passwordHash, user.createdAt);
+}
+
+export function updatePassword(id: string, newPasswordHash: string): void {
+  db.prepare('UPDATE users SET passwordHash = ? WHERE id = ?').run(newPasswordHash, id);
 }

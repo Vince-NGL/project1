@@ -26,7 +26,16 @@ export default async function DashboardPage() {
     <div>
       <h1>Dashboard</h1>
       {user ? (
-        <p>Bonjour {user.email}</p>
+        <>
+          <p>Bonjour {user.email}</p>
+          <a href="/dashboard/change-password" style={{ fontSize: 14 }}>
+            Change your Password
+          </a>
+          <br />
+          <a href="/dashboard/search" style={{ fontSize: 14 }}>
+            Search Google Top PAA
+          </a>
+        </>
       ) : (
         <p>Could not load user info.</p>
       )}
