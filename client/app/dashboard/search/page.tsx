@@ -124,7 +124,7 @@ export default function SearchPage() {
                 {results.relatedSearches.map((s, i) => (
                   <span
                     key={i}
-                    onClick={() => setQuery(s)}
+                    onClick={() => { setQuery(s); setResults(null); }}
                     style={{ padding: '6px 12px', background: '#eef', borderRadius: 20, fontSize: 13, cursor: 'pointer' }}
                   >
                     {s}
