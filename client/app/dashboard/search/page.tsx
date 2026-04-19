@@ -17,10 +17,7 @@ export default function SearchPage() {
   const [error, setError] = useState<string | null>(null);
   const controllerRef = useRef<AbortController | null>(null);
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    if (!query.trim()) return;
-
+  async function runSearch(q: string) {
     controllerRef.current?.abort();
     const controller = new AbortController();
     controllerRef.current = controller;
@@ -34,7 +31,7 @@ export default function SearchPage() {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ q: query, gl, hl }),
+        body: JSON.stringify({ q, gl, hl }),
         signal: controller.signal,
       });
 
@@ -53,6 +50,12 @@ export default function SearchPage() {
     } finally {
       if (!controller.signal.aborted) setLoading(false);
     }
+  }
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault();
+    if (!query.trim()) return;
+    runSearch(query);
   }
 
   return (
@@ -124,7 +127,7 @@ export default function SearchPage() {
                 {results.relatedSearches.map((s, i) => (
                   <span
                     key={i}
-                    onClick={() => setQuery(s)}
+                    onClick={() => { setQuery(s); runSearch(s); }}
                     style={{ padding: '6px 12px', background: '#eef', borderRadius: 20, fontSize: 13, cursor: 'pointer' }}
                   >
                     {s}
